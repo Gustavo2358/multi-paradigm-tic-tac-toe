@@ -1,4 +1,4 @@
-# multi-oaradigm-tic-tac-toe
+# multi-paradigm-tic-tac-toe
 
 Experimenting with different programming paradigms in separate branches.
 
