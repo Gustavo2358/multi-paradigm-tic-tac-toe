@@ -1,6 +1,7 @@
 package com.oliveira;
 
 import java.util.Scanner;
+import java.util.stream.IntStream;
 
 public class Main {
     public static void main(String[] args) {
@@ -49,34 +50,29 @@ public class Main {
     }
 
     static boolean checkForWinner(Character[][] state, Player player) {
-        final Character symbol = player.symbol();
+        return IntStream.range(0, state.length).anyMatch(i ->
+                    checkRow(state, i, player.symbol()) ||
+                    checkColumn(state, i, player.symbol())
+                ) ||
+                checkDiagonal(state, player.symbol()) ||
+                checkAntiDiagonal(state, player.symbol()
+                );
+    }
 
-        boolean diagonal1 = true;
-        boolean diagonal2 = true;
+    private static boolean checkAntiDiagonal(Character[][] state, Character symbol) {
+        return IntStream.range(0, state.length).allMatch(i -> state[i][state.length - 1 - i] == symbol);
+    }
 
-        for (int i = 0; i < state.length; i++) {
-            boolean row = true;
-            boolean column = true;
-            for (int j = 0; j < state[i].length; j++) {
-                if(state[i][j] != symbol) {
-                    row = false;
-                }
-                if(state[j][i] != symbol)
-                    column = false;
-            }
+    private static boolean checkDiagonal(Character[][] state, Character symbol) {
+        return IntStream.range(0, state.length).allMatch(i -> state[i][i] == symbol);
+    }
 
-            if(row || column)
-                return true;
+    private static boolean checkColumn(Character[][] state, int col, Character symbol) {
+        return IntStream.range(0, state[col].length).allMatch(row -> state[row][col] == symbol);
+    }
 
-            if(state[i][i] != symbol)
-                diagonal1 = false;
-
-            int lastColumn = state.length - 1;
-            if(state[i][lastColumn - i] != symbol)
-                diagonal2 = false;
-        }
-
-        return diagonal1 || diagonal2;
+    private static boolean checkRow(Character[][] state, int row, Character symbol) {
+        return IntStream.range(0, state[row].length).allMatch(col -> state[row][col] == symbol);
     }
 
     private static Player toggleTurn(final Player turn) {
@@ -93,7 +89,6 @@ public class Main {
             return true;
         }
         return false;
-
     }
 
     private static int[] mapChoiceToIndexes(final int choice){
