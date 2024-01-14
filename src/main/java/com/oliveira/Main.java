@@ -17,7 +17,7 @@ public class Main {
         int choice;
         while (true) {
             System.out.printf("It's %s turn:\n\n", turn);
-            showBoard(state);
+            System.out.println(showBoard(state));
             Scanner sc = new Scanner(System.in);
 
             try {
@@ -35,105 +35,95 @@ public class Main {
                 boolean win = checkForWinner(state, turn);
                 if (win) {
                     System.out.printf("Play %s wins!\n", turn.symbol());
-                    showBoard(state);
+                    System.out.println(showBoard(state));
                     break;
                 }
 
                 turn = toggleTurn(turn);
             }
+            else{
+                System.out.println("Choice is not available, choose other");
+            }
 
         }
     }
 
-    private static boolean checkForWinner(Character[][] state, Player player) {
-        int points = 0;
+    static boolean checkForWinner(Character[][] state, Player player) {
+        final Character symbol = player.symbol();
+
+        boolean diagonal1 = true;
+        boolean diagonal2 = true;
+
         for (int i = 0; i < state.length; i++) {
+            boolean row = true;
+            boolean column = true;
             for (int j = 0; j < state[i].length; j++) {
-                if(state[i][j] == player.symbol()) {
-                    points++;
-                    if (points == 3)
-                        return true;
+                if(state[i][j] != symbol) {
+                    row = false;
                 }
+                if(state[j][i] != symbol)
+                    column = false;
             }
-            points = 0;
+
+            if(row || column)
+                return true;
+
+            if(state[i][i] != symbol)
+                diagonal1 = false;
+
+            int lastColumn = state.length - 1;
+            if(state[i][lastColumn - i] != symbol)
+                diagonal2 = false;
         }
 
-        for (int i = 0; i < state.length; i++) {
-            for (int j = 0; j < state[i].length; j++) {
-                if(state[j][i] == player.symbol()) {
-                    points++;
-                    if (points == 3)
-                        return true;
-                }
-            }
-            points = 0;
-        }
-
-        for (int i = 0; i < state.length; i++) {
-            if(state[i][i] == player.symbol()) {
-                points++;
-                if (points == 3)
-                    return true;
-            }
-        }
-        points = 0;
-        int lastColumn = state.length - 1;
-        for (int i = 0; i < state.length; i++) {
-            if(state[i][lastColumn - i] == player.symbol()) {
-                points++;
-                if (points == 3)
-                    return true;
-            }
-        }
-
-        return false;
+        return diagonal1 || diagonal2;
     }
 
-    private static Player toggleTurn(Player turn) {
+    private static Player toggleTurn(final Player turn) {
         if(turn.equals(Player.O)) {
             return Player.X;
         }
         return Player.O;
     }
 
-    private static boolean updateState(Character[][] state, int choice, Player turn) {
-        if(choiceIsAvailable(choice,state)) {
+    private static boolean updateState(final Character[][] state, final int choice, final Player turn) {
+        if(choiceIsAvailable(state, choice)) {
             int[] indexes = mapChoiceToIndexes(choice);
             state[indexes[0]][indexes[1]] = turn.symbol();
             return true;
         }
-
-        System.out.println("Choice not available, choose other");
         return false;
 
     }
 
-    private static int[] mapChoiceToIndexes(int choice){
+    private static int[] mapChoiceToIndexes(final int choice){
         int line = (choice - 1) / 3;
         int column = (choice - 1) % 3;
         return new int[]{line, column};
     }
 
-    private static boolean choiceIsAvailable(int choice, Character[][] state) {
+    private static boolean choiceIsAvailable(final Character[][] state, final int choice) {
         int[] indexes = mapChoiceToIndexes(choice);
         return !(state[indexes[0]][indexes[1]].equals(Player.O.symbol()) ||
                     state[indexes[0]][indexes[1]].equals(Player.X.symbol())) ;
     }
 
-    public static void showBoard(Character[][] state){
+    public static String showBoard(final Character[][] state){
+        StringBuilder sb = new StringBuilder();
         for(int i = 0; i < state.length; i++){
             for(int j = 0; j < state[i].length; j++){
-                System.out.printf(" %c ",state[i][j]);
+                sb.append(String.format(" %c ",state[i][j]));
                 if(isNotLastIndexOfArray(j, state[i]))
-                    System.out.print("|");
+                    sb.append("|");
             }
-            System.out.println();
+            sb.append("\n");
             if(isNotLastIndexOfArray(i, state))
-                System.out.println("-------------");
+                sb.append("-------------\n");
         }
+        return sb.toString();
     }
 
-    public static <T> boolean isNotLastIndexOfArray(int index, T[] arr){
+    public static <T> boolean isNotLastIndexOfArray(final int index, final T[] arr){
         return index != arr.length - 1;
     }
 }
